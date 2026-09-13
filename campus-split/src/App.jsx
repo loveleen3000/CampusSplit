@@ -464,30 +464,54 @@ export default function App() {
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col antialiased">
 
       {/* Top Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-40 px-6 py-3.5 shadow-sm">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div
-            onClick={() => setActiveScreen('dashboard')}
-            className="flex items-center gap-3 cursor-pointer group"
-          >
-            <div className="bg-indigo-600 p-2.5 rounded-xl text-white shadow-md shadow-indigo-100 group-hover:bg-indigo-700 transition">
-              <Coins size={20} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-black tracking-tight text-slate-900">
-                  Campus<span className="text-indigo-600">Split</span>
-                </span>
-                <span className="text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded-full">Min-Cash Flow Engine</span>
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-40 px-3 sm:px-6 py-3 shadow-sm">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+
+          {/* Top Row: Logo & Action Buttons */}
+          <div className="flex items-center justify-between gap-2">
+            <div
+              onClick={() => setActiveScreen('dashboard')}
+              className="flex items-center gap-2.5 cursor-pointer group"
+            >
+              <div className="bg-indigo-600 p-2 rounded-xl text-white shadow-md shadow-indigo-100 group-hover:bg-indigo-700 transition shrink-0">
+                <Coins size={18} />
               </div>
-              <p className="text-[11px] text-slate-500">Autonomous Debt Settlement Engine</p>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-base sm:text-lg font-black tracking-tight text-slate-900">
+                    Campus<span className="text-indigo-600">Split</span>
+                  </span>
+                  <span className="hidden sm:inline-block text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded-full">
+                    Min-Cash Flow Engine
+                  </span>
+                </div>
+                <p className="text-[10px] sm:text-[11px] text-slate-500 leading-tight">Autonomous Settlement Engine</p>
+              </div>
+            </div>
+
+            {/* Quick Actions (Mobile Right / Desktop Right) */}
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                onClick={handleExportCSV}
+                className="text-[11px] sm:text-xs bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100 px-2.5 py-1.5 rounded-lg font-bold flex items-center gap-1 transition shadow-sm"
+              >
+                <span>📊</span> <span className="hidden xs:inline">Export</span>
+              </button>
+              <button
+                onClick={handleResetAll}
+                title="Clear all MongoDB data"
+                className="text-[11px] sm:text-xs bg-slate-100 hover:bg-rose-50 hover:text-rose-600 border border-slate-200 hover:border-rose-200 text-slate-600 font-semibold px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition"
+              >
+                <RotateCcw size={13} /> <span className="hidden xs:inline">Reset</span>
+              </button>
             </div>
           </div>
 
-          <nav className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
+          {/* Navigation Bar (Horizontally scrollable on mobile) */}
+          <nav className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs overflow-x-auto no-scrollbar py-1">
             <button
               onClick={() => setActiveScreen('dashboard')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg font-semibold transition ${activeScreen === 'dashboard' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold transition whitespace-nowrap shrink-0 ${activeScreen === 'dashboard' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'
                 }`}
             >
               <Home size={14} /> Dashboard
@@ -495,7 +519,7 @@ export default function App() {
 
             <button
               onClick={() => setActiveScreen('graph')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg font-semibold transition ${activeScreen === 'graph' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold transition whitespace-nowrap shrink-0 ${activeScreen === 'graph' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'
                 }`}
             >
               <Zap size={14} className="text-amber-500" /> Graph Engine
@@ -503,7 +527,7 @@ export default function App() {
 
             <button
               onClick={() => setActiveScreen('ledger')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg font-semibold transition ${activeScreen === 'ledger' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold transition whitespace-nowrap shrink-0 ${activeScreen === 'ledger' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'
                 }`}
             >
               <History size={14} /> Ledger
@@ -511,28 +535,13 @@ export default function App() {
 
             <button
               onClick={() => setActiveScreen('analytics')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg font-semibold transition ${activeScreen === 'analytics' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold transition whitespace-nowrap shrink-0 ${activeScreen === 'analytics' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'
                 }`}
             >
               <ChartIcon size={14} /> Analytics
             </button>
           </nav>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleExportCSV}
-              className="text-xs bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100 px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition shadow-sm"
-            >
-              <span>📊</span> Export CSV
-            </button>
-            <button
-              onClick={handleResetAll}
-              title="Clear all MongoDB data"
-              className="text-xs bg-slate-100 hover:bg-rose-50 hover:text-rose-600 border border-slate-200 hover:border-rose-200 text-slate-600 font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition"
-            >
-              <RotateCcw size={13} /> Reset data
-            </button>
-          </div>
         </div>
       </header>
 
