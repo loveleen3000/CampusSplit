@@ -40,5 +40,14 @@
 git clone [https://github.com/](https://github.com/)<YOUR_USERNAME>/<YOUR_REPO_NAME>.git
 
 cd "CAMPUS SPLIT" 
+```
+
+### 🌐 Live Production Links:
+
+Frontend (Client Application): https://campus-split-vert.vercel.app
+
+Backend API (Render Server): https://campussplit-api.onrender.com
+
+API Health / Base Route: https://campussplit-api.onrender.com/api
 
 
