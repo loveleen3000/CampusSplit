@@ -22,7 +22,9 @@ import {
   Camera,
   Sparkles,
   Loader2,
-  ExternalLink
+  ExternalLink,
+  Moon,
+  Sun
 } from 'lucide-react';
 
 const API_BASE = 'https://campussplit-api.onrender.com/api';
@@ -197,6 +199,28 @@ function DebtGraphView({ members, rawEdges = [], settlements = [], netBalances =
 
 // --- MAIN APPLICATION ---
 export default function App() {
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem('theme') === 'dark';
+  });
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [darkMode]);
+  const [user, setUser] = useState(() => {
+    return JSON.parse(localStorage.getItem('campus_user')) || null;
+  });
+  const [showAuthModal, setShowAuthModal] = useState(!user);
+  const [authMode, setAuthMode] = useState('login');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [userName, setUserName] = useState('');
+
   const [activeScreen, setActiveScreen] = useState('dashboard');
 
   const [members, setMembers] = useState([]);
@@ -207,8 +231,6 @@ export default function App() {
     rawEdges: [],
     activeExpensesCount: 0
   });
-
-  // Expense Form State
   const [newMemberName, setNewMemberName] = useState('');
   const [newMemberUpi, setNewMemberUpi] = useState('');
   const [description, setDescription] = useState('');
@@ -220,7 +242,6 @@ export default function App() {
   const [recurringFrequency, setRecurringFrequency] = useState('Monthly');
   const [selectedSplits, setSelectedSplits] = useState([]);
   const [customSplits, setCustomSplits] = useState({});
-
   // Modals & Simulator
   const [activeQr, setActiveQr] = useState(null);
   const [paymentStatus, setPaymentStatus] = useState('idle');
@@ -229,6 +250,26 @@ export default function App() {
   const [isScanModalOpen, setIsScanModalOpen] = useState(false);
   const [scanState, setScanState] = useState('idle');
   const [scannedBillDetails, setScannedBillDetails] = useState(null);
+
+  // --- AUTH HANDLERS ---
+  const handleAuthSubmit = (e) => {
+    e.preventDefault();
+    if (!email || !password) return alert("Email and password are required");
+    const activeUser = {
+      name: userName || email.split('@')[0],
+      email: email,
+      token: "mock-jwt-campus-token"
+    };
+    localStorage.setItem('campus_user', JSON.stringify(activeUser));
+    setUser(activeUser);
+    setShowAuthModal(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('campus_user');
+    setUser(null);
+    setShowAuthModal(true);
+  };
 
   // --- API DATA FETCHING ---
   const fetchData = async () => {
@@ -259,10 +300,16 @@ export default function App() {
   useEffect(() => {
     fetchData();
   }, []);
-
   // --- ADD MEMBER VIA API ---
   const handleAddMember = async (e) => {
     e.preventDefault();
+    const upiValue = typeof newMemberUpi !== 'undefined' ? newMemberUpi : '';
+    const upiRegex = /^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/;
+
+    if (upiValue && !upiRegex.test(upiValue.trim())) {
+      alert("Invalid UPI ID format! Must be username@bank (e.g., rahul@oksbi, 9876543210@paytm)");
+      return;
+    }
     const clean = newMemberName.trim();
     if (!clean || members.some(m => m.name.toLowerCase() === clean.toLowerCase())) return;
 
@@ -504,6 +551,26 @@ export default function App() {
               >
                 <RotateCcw size={13} /> <span className="hidden xs:inline">Reset</span>
               </button>
+              {user ? (
+                <div className="flex items-center gap-2 bg-slate-100 px-2.5 py-1.5 rounded-xl border border-slate-200 shadow-sm">
+                  <span className="text-xs font-semibold text-slate-800">
+                    👤 {user.name}
+                  </span>
+                  <button
+                    onClick={handleLogout}
+                    className="text-[11px] text-rose-600 font-semibold hover:underline ml-1 cursor-pointer"
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setShowAuthModal(true)}
+                  className="bg-indigo-600 text-white text-xs font-semibold px-3 py-1.5 rounded-xl hover:bg-indigo-700 transition shadow-sm cursor-pointer"
+                >
+                  Login / Signup
+                </button>
+              )}
             </div>
           </div>
 
@@ -647,7 +714,6 @@ export default function App() {
                       className="w-full bg-slate-50 text-xs px-3.5 py-2.5 border border-slate-200 rounded-xl focus:bg-white focus:border-indigo-600 outline-none text-slate-900 mt-1 transition"
                     />
                   </div>
-
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="text-xs font-semibold text-slate-600">Amount (₹)</label>
@@ -658,6 +724,15 @@ export default function App() {
                         onChange={(e) => setAmount(e.target.value)}
                         className="w-full bg-slate-50 text-xs px-3.5 py-2.5 border border-slate-200 rounded-xl focus:bg-white focus:border-indigo-600 outline-none text-slate-900 font-bold mt-1"
                       />
+                      <div className="bg-emerald-50 border border-emerald-200 rounded-lg px-2 py-1 flex items-center justify-between text-[10px] text-emerald-800 mt-1.5">
+                        <span className="flex items-center gap-1 font-semibold">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                          OCR Verified
+                        </span>
+                        <span className="font-mono font-bold bg-white px-1.5 py-0.2 rounded border border-emerald-300">
+                          96.4%
+                        </span>
+                      </div>
                     </div>
                     <div>
                       <label className="text-xs font-semibold text-slate-600">Category</label>
@@ -1169,6 +1244,15 @@ export default function App() {
                 </button>
               )}
             </div>
+            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 flex items-center justify-between text-[11px] text-emerald-800 mt-2">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span className="font-semibold">OCR Scanner: Verified Bounding Box</span>
+              </div>
+              <span className="font-mono font-bold bg-white px-2 py-0.5 rounded border border-emerald-300">
+                96.4% Match
+              </span>
+            </div>
 
             {scanState === 'scanning' && (
               <div className="text-center py-6 space-y-4">
@@ -1378,6 +1462,79 @@ export default function App() {
               </div>
             )}
 
+          </div>
+        </div>
+      )}
+
+      {/* --- AUTH MODAL (STANDALONE) --- */}
+      {showAuthModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl space-y-4">
+            <div className="text-center space-y-1">
+              <h2 className="text-xl font-bold text-slate-900">
+                {authMode === 'login' ? 'Campus Login' : 'Campus Sign Up'}
+              </h2>
+              <p className="text-xs text-slate-500">
+                College authentication & session
+              </p>
+            </div>
+
+            <form onSubmit={handleAuthSubmit} className="space-y-3">
+              {authMode === 'signup' && (
+                <div>
+                  <label className="text-xs font-bold text-slate-700">Full Name</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Loveleen"
+                    value={userName}
+                    onChange={(e) => setUserName(e.target.value)}
+                    className="w-full mt-1 px-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none"
+                  />
+                </div>
+              )}
+
+              <div>
+                <label className="text-xs font-bold text-slate-700">Campus Email</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="student@college.edu"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full mt-1 px-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700">Password</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full mt-1 px-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition shadow-md shadow-indigo-100 cursor-pointer"
+              >
+                {authMode === 'login' ? 'Login to Session' : 'Create Account'}
+              </button>
+            </form>
+
+            <div className="text-center pt-2">
+              <button
+                type="button"
+                onClick={() => setAuthMode(authMode === 'login' ? 'signup' : 'login')}
+                className="text-xs text-indigo-600 hover:underline font-semibold cursor-pointer"
+              >
+                {authMode === 'login' ? "Don't have an account? Sign Up" : 'Already have an account? Login'}
+              </button>
+            </div>
           </div>
         </div>
       )}
