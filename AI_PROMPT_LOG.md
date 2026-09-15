@@ -1,7 +1,7 @@
 # AI_PROMPT_LOG.md
 ## Project: CampusSplit (Autonomous Campus Debt Settlement Engine)
 ## Track 4: Student Finance & Smart Campus Living
-## Team: Tech Mind (Loveleen - Lead, Shania Bawa, Deeksha)
+## Team: Tech Mind (Loveleen - Lead, Shania Bawa)
 
 ---
 
